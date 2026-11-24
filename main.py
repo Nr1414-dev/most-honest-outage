@@ -30,9 +30,16 @@ def validate_entry(text):
 
 def main():
     out = "/output/entry.txt"
+    text = validate_entry(ENTRY)
     with open(out, "w", encoding="utf-8") as f:
-        f.write(validate_entry(ENTRY))
+        f.write(text)
     os.chmod(out, 0o644)
+    # Read-back guard: the file on disk must be byte-identical to the
+    # validated entry, so a silent write failure can never ship a
+    # different line to the grader.
+    with open(out, "r", encoding="utf-8") as f:
+        if f.read() != text:
+            raise ValueError("read-back mismatch: /output/entry.txt differs from entry")
 
 
 if __name__ == "__main__":
